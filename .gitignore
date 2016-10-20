@@ -1,0 +1,10 @@
+.launches/
+.settings/
+Debug/
+driverlib/
+MSP430FR5*/
+target*/
+.ccsproject
+.cproject
+.project
+lnk_*
