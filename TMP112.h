@@ -4,8 +4,8 @@
 #include "msp430.h"
 
 void TMP_I2C_Init(void);
-unsigned int TMP_I2C_Read_Register(unsigned char reg_addr);
-void TMP_Get_Temp(unsigned int* ui16TempReturn, unsigned char* uc8NegFlagReturn );
+unsigned int getTemperature();
+
 
 
 #define TMP112_I2C_ADDR 	0x0048
