@@ -13,26 +13,75 @@ void TMP_I2C_Init(void){
 		UCB0CTL1 &= ~UCSWRST;
 }
 
+void TMP_Config_Init(){
+	UCB0CTL1  |= UCSWRST;
+	UCB0CTLW1 = UCASTP_2;  // generate STOP condition.
+	UCB0TBCNT = 0x0001;
+	UCB0CTL1  &= ~UCSWRST;
+
+	UCB0CTL1 |= UCTXSTT + UCTR;		// Start i2c write operation
+	while(!(UCB0IFG & UCTXIFG0));
+	UCB0TXBUF = TMP112_CONF_REG & 0xFF;
+	while(!(UCB0IFG & UCBCNTIFG));
+
+	UCB0CTLW1 = UCASTP_2;  			// generate STOP condition.
+	UCB0TBCNT = 0x0002;
+	UCB0CTL1 |= UCTXSTT; 			// Repeated start
+
+	UCB0TXBUF = 0x78 & 0xFF;
+	while(!(UCB0IFG & UCBCNTIFG));
+
+	UCB0TXBUF = 0xA0 & 0xFF;
+	while(!(UCB0IFG & UCBCNTIFG));
+
+	UCB0CTL1  |= UCSWRST;
+
+}
+
 unsigned int getTemperature(){
 	unsigned int pTempData;
 	unsigned char ui8RxData[2];
+
+		UCB0CTL1  |= UCSWRST;
+		UCB0CTLW1 = UCASTP_2;  // generate STOP condition.
+		UCB0TBCNT = 0x0001;
+		UCB0CTL1  &= ~UCSWRST;
+
+		UCB0CTL1 |= UCTXSTT + UCTR;		// Start i2c write operation
+		while(!(UCB0IFG & UCTXIFG0));
+		UCB0TXBUF = TMP112_CONF_REG & 0xFF;
+		while(!(UCB0IFG & UCBCNTIFG));
+
+		UCB0CTLW1 = UCASTP_2;  			// generate STOP condition.
+		UCB0TBCNT = 0x0002;
+		UCB0CTL1 |= UCTXSTT; 			// Repeated start
+
+		UCB0TXBUF = 0xF8 & 0xFF;
+		while(!(UCB0IFG & UCBCNTIFG));
+
+		UCB0TXBUF = 0xA0 & 0xFF;
+		while(!(UCB0IFG & UCBCNTIFG));
+
+		UCB0CTL1  |= UCSWRST;
+
+
+
+
 
 				UCB0CTL1  |= UCSWRST;
 	    		UCB0CTLW1 = UCASTP_2;  // generate STOP condition.
 	    		UCB0TBCNT = 0x0001;
 	    		UCB0CTL1  &= ~UCSWRST;
-//	_delay_cycles(1000);
 
 	    		UCB0CTL1 |= UCTXSTT + UCTR;		// Start i2c write operation
 	    		while(!(UCB0IFG & UCTXIFG0));
-	    		UCB0TXBUF = 0x00 & 0xFF;
+	    		UCB0TXBUF = TMP112_TEMP_REG & 0xFF;
 	    		while(!(UCB0IFG & UCBCNTIFG));
 
 	    		UCB0CTL1 &= ~UCTR;
 	    		UCB0CTLW1 = UCASTP_2;  			// generate STOP condition.
 	    		UCB0TBCNT = 0x0002;
 	    		UCB0CTL1 |= UCTXSTT; 			// Repeated start
-	//_delay_cycles(1000);
 
 	    		while(!(UCB0IFG & UCRXIFG0));
 	    		ui8RxData[1] = UCB0RXBUF;

@@ -20,9 +20,9 @@
 
 
 //***** Global Variables ******************************************************
-uint32_t myACLK  = 0;
-uint32_t mySMCLK = 0;
-uint32_t myMCLK  = 0;
+//uint32_t myACLK  = 0;
+//uint32_t mySMCLK = 0;
+//uint32_t myMCLK  = 0;
 
 
 //***** initClocks ************************************************************
@@ -39,9 +39,9 @@ void initClocks(void) {
     );
 
     // Verify if the default clock settings are as expected
-    myACLK  = CS_getACLK();
-    mySMCLK = CS_getSMCLK();
-    myMCLK  = CS_getMCLK();
+//    myACLK  = CS_getACLK();
+//    mySMCLK = CS_getSMCLK();
+//    myMCLK  = CS_getMCLK();
 
     // Set FRAM Controller waitstates to 1 when MCLK > 8MHz (per datasheet)
 	// Please refer to the "Non-Volatile Memory" chapter for more details
@@ -85,9 +85,9 @@ void initClocks(void) {
 //    );
 
     // Verify that the modified clock settings are as expected
-    myACLK  = CS_getACLK();
-    mySMCLK = CS_getSMCLK();
-    myMCLK  = CS_getMCLK();
+//    myACLK  = CS_getACLK();
+//    mySMCLK = CS_getSMCLK();
+//    myMCLK  = CS_getMCLK();
 }
 
 

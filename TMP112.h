@@ -6,7 +6,7 @@
 void TMP_I2C_Init(void);
 unsigned int getTemperature();
 
-
+void TMP_Config_Init();
 
 #define TMP112_I2C_ADDR 	0x0048
 
