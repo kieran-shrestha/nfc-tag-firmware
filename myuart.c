@@ -7,6 +7,7 @@
 
 #include "msp430.h"
 #include "myuart.h"
+#include <stdint.h>
 
 void myuart_init(void)
 {
@@ -33,7 +34,7 @@ void myuart_init(void)
   // Fractional portion = 0.083
   // User's Guide Table 21-4: UCBRSx = 0x04
   // UCBRFx = int ( (52.083-52)*16) = 1
-  UCA0BR0 = 26;                             // 8000000/16/9600
+  UCA0BR0 = 26;                             // 4000000/16/9600
   UCA0BR1 = 0x00;
   UCA0MCTLW |= UCOS16 | UCBRF_1;
   UCA0CTLW0 &= ~UCSWRST;                    // Initialize eUSCI
@@ -45,11 +46,18 @@ void myuart_tx_byte(unsigned char data)
 	UCA0TXBUF = data;
 }
 
-void myuart_tx_string(char *ptr)
+
+/*to transmit string characterwise untill null character is found*/
+void myuart_tx_string(char *str)
 {
+	int i = 0;
+	while(str[i]!='\0')
+	{
+		myuart_tx_byte(str[i]);
+		i++;
+	}
 
 }
-
 #if 0
 void myuart_rx()
 {

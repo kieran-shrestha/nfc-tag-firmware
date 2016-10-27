@@ -11,9 +11,13 @@ void TMP_I2C_Init(void){
 		UCB0I2CSA  = TMP112_I2C_ADDR;					// Set Slave Address
 		UCB0IE = 0;
 		UCB0CTL1 &= ~UCSWRST;
+
+
 }
 
 void TMP_Config_Init(){
+	TMP_I2C_Init();
+
 	UCB0CTL1  |= UCSWRST;
 	UCB0CTLW1 = UCASTP_2;  // generate STOP condition.
 	UCB0TBCNT = 0x0001;
@@ -64,10 +68,6 @@ unsigned int getTemperature(){
 
 		UCB0CTL1  |= UCSWRST;
 
-
-
-
-
 				UCB0CTL1  |= UCSWRST;
 	    		UCB0CTLW1 = UCASTP_2;  // generate STOP condition.
 	    		UCB0TBCNT = 0x0001;
@@ -91,11 +91,51 @@ unsigned int getTemperature(){
 	    		UCB0CTL1  |= UCSWRST;
 
 	    		pTempData = (0x0FF0 & (ui8RxData[1] << 4)) | (0x0F & (ui8RxData[0] >> 4 ));
-
 	    		pTempData = 0x07FF & pTempData;
-
-
 
 	return pTempData;
 
 }
+
+void TMP_Get_Temp(float* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsigned char uc8ModeFlag ){
+
+	unsigned long pTempData;
+
+	TMP_I2C_Init();
+
+	g_TempNegFlagFahr = 0;
+
+	pTempData = getTemperature();
+
+	if(!(pTempData & 0x800)){ // Sign bit.  If +
+		g_TempDataCel = (pTempData * 625)/1000;
+		g_TempNegFlagCel = 0;					//defined in main
+	}  //else is -
+	else{
+		pTempData = (~pTempData) & 0xFFF;
+		g_TempDataCel = (pTempData * 625)/1000;
+		g_TempNegFlagCel = 1;
+	}
+
+	if(g_TempNegFlagCel){
+		g_TempDataFahr  = 320 - ((g_TempDataCel * 9)/5);
+
+		if(g_TempDataCel > 176){  // 176 == 17.6 C == 0 F
+			g_TempNegFlagFahr = 1;
+			g_TempDataFahr = (~g_TempDataFahr) + 1;
+		}
+	}
+	else{
+		g_TempDataFahr  = 320 + ((g_TempDataCel * 9)/5);
+	}
+
+	if(uc8ModeFlag){ // Celcius
+		*ui16TempReturn = g_TempDataCel/10.0;
+		*uc8NegFlagReturn = g_TempNegFlagCel;
+	}
+	else{	//Fahrenheit
+		*ui16TempReturn = g_TempDataFahr/10.0;
+		*uc8NegFlagReturn = g_TempNegFlagFahr;
+	}
+}
+

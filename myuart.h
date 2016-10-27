@@ -13,5 +13,6 @@
 
 void myuart_init(void);
 void myuart_tx_byte(unsigned char data);
+void myuart_tx_string(char *str);
 
 #endif /* MYUART_H_ */
