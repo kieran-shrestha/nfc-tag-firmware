@@ -36,7 +36,9 @@ int main(void) {
 
 	unsigned int Temperature;		//to hold the temperature
 	unsigned int flags = 0;	// to hold the interuupt flag of nfc ic
+#ifdef DEBUG
 	char str[30];			//for sprintf
+#endif
 	uint16_t interrupt_serviced = 0;	//which interrupt is just served of nfc ic
 
 	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
@@ -197,7 +199,7 @@ int main(void) {
 			temp = Temperature%100;
 
 			temp = temp/13;
-			FileTextE104[12] = (char)temp+48;
+			FileTextE104[13] = (char)temp+48;
 			temp = Temperature%10;
 
 			FileTextE104[14] = (char)temp+48;
