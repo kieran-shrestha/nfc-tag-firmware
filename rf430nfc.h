@@ -2,6 +2,7 @@
 #define RF430NFC_H_
 
 #include "msp430.h"
+#include "stdint.h"
 
 void RF430_I2C_Init(void);
 void Write_Register(unsigned int reg_addr, unsigned int value);
