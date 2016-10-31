@@ -97,7 +97,7 @@ unsigned int getTemperature(){
 
 }
 
-void TMP_Get_Temp(float* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsigned char uc8ModeFlag ){
+void TMP_Get_Temp(unsigned int* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsigned char uc8ModeFlag ){
 
 	unsigned long pTempData;
 
@@ -108,15 +108,15 @@ void TMP_Get_Temp(float* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsign
 	pTempData = getTemperature();
 
 	if(!(pTempData & 0x800)){ // Sign bit.  If +
-		g_TempDataCel = (pTempData * 625)/1000;
+		g_TempDataCel = (pTempData * 625)/100;
 		g_TempNegFlagCel = 0;					//defined in main
 	}  //else is -
 	else{
 		pTempData = (~pTempData) & 0xFFF;
-		g_TempDataCel = (pTempData * 625)/1000;
+		g_TempDataCel = (pTempData * 625)/100;
 		g_TempNegFlagCel = 1;
 	}
-
+/////////////////negative fahreinheit left to do///////////////////////////////
 	if(g_TempNegFlagCel){
 		g_TempDataFahr  = 320 - ((g_TempDataCel * 9)/5);
 
@@ -128,13 +128,13 @@ void TMP_Get_Temp(float* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsign
 	else{
 		g_TempDataFahr  = 320 + ((g_TempDataCel * 9)/5);
 	}
-
+//////////////////////////////////////////////////////////////////////////////
 	if(uc8ModeFlag){ // Celcius
-		*ui16TempReturn = g_TempDataCel/10.0;
+		*ui16TempReturn = g_TempDataCel;
 		*uc8NegFlagReturn = g_TempNegFlagCel;
 	}
 	else{	//Fahrenheit
-		*ui16TempReturn = g_TempDataFahr/10.0;
+		*ui16TempReturn = g_TempDataFahr;
 		*uc8NegFlagReturn = g_TempNegFlagFahr;
 	}
 }

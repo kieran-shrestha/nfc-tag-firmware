@@ -6,7 +6,7 @@
 void TMP_I2C_Init(void);
 //unsigned int getTemperature();
 void TMP_Config_Init(void);
-void TMP_Get_Temp(float* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsigned char uc8ModeFlag );
+void TMP_Get_Temp(unsigned int* ui16TempReturn, unsigned char* uc8NegFlagReturn, unsigned char uc8ModeFlag );
 
 extern unsigned int g_TempDataFahr;
 extern unsigned int g_TempDataCel;
