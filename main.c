@@ -7,7 +7,7 @@
 #include "myuart.h"
 #include "myTimers.h"
 
-#define DEBUG 1
+//#define DEBUG 1
 
 extern uint16_t SelectedFile;
 extern uint8_t FileTextE104[30];
@@ -28,6 +28,7 @@ typedef enum {
 Temp_Modes_t g_ui8TemperatureModeFlag = Celcius;
 
 unsigned char timerFired = 0;
+unsigned char nfcFired = 0;
 
 //***** Prototypes ************************************************************
 void initGPIO(void);
@@ -39,7 +40,7 @@ int main(void) {
 #ifdef DEBUG
 	char str[30];			//for sprintf
 #endif
-	uint16_t interrupt_serviced = 0;	//which interrupt is just served of nfc ic
+	uint16_t interrupt_serviced = 0;//which interrupt is just served of nfc ic
 
 	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 
@@ -49,18 +50,19 @@ int main(void) {
 #ifdef DEBUG
 	myuart_init();				// at 9600 baud
 #endif
-	initTimers();				// for 6.5sec temperature reads
+//	initTimers();				// for 6.5sec temperature reads
 	TMP_Config_Init();			// configure to be in shutdown one shot mode
 	RF430_Init();				// resets the nfc ic
 
-	__bis_SR_register( GIE);	//enable global interrupt
 #ifdef DEBUG
 	myuart_tx_string("Program started...\r\n");
 #endif
 	while (1) {
-		//__bis_SR_register(LPM0_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
-		//__no_operation();
-		if (!(P2IN & BIT2)) {	//if int from the nfc ic
+		__bis_SR_register(LPM4_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
+		__no_operation();
+
+
+		if (nfcFired)/* (!(P2IN & BIT2))*/{	//if int from the nfc ic
 
 			flags = Read_Register(INT_FLAG_REG); //read the flag register to check if a read or write
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN5);
@@ -71,7 +73,7 @@ int main(void) {
 #ifdef DEBUG
 				myuart_tx_string("Removed from the RF field");
 #endif
-				interrupt_serviced |= FIELD_REMOVED_INT_FLAG;// clear this flag later
+				interrupt_serviced |= FIELD_REMOVED_INT_FLAG; // clear this flag later
 				Write_Register(INT_FLAG_REG, interrupt_serviced); //ACK the flags to clear
 			}
 
@@ -88,7 +90,7 @@ int main(void) {
 
 				case FILE_SELECT_STATUS: {
 					uint16_t file_id;
-					file_id = Read_Register(NDEF_FILE_ID);	//determine the file like e103 or e104
+					file_id = Read_Register(NDEF_FILE_ID);//determine the file like e103 or e104
 					ret = SearchForFile((uint8_t *) &file_id);//check if the file exist
 					interrupt_serviced |= DATA_TRANSACTION_INT_FLAG;// clear this flag later
 
@@ -109,6 +111,7 @@ int main(void) {
 				// NDEF ReadBinary request has been sent by the mobile / reader
 
 				case FILE_REQUEST_STATUS: {
+					timerFired = 1;
 					uint16_t buffer_start;
 					uint16_t file_offset;
 					uint16_t file_length;
@@ -140,22 +143,21 @@ int main(void) {
 					uint16_t file_offset;
 					uint16_t file_length;
 
-					interrupt_serviced |= DATA_TRANSACTION_INT_FLAG;// clear this flag later
-					buffer_start = Read_Register(NDEF_BUFFER_START);// where to start in the RF430 buffer to read the file data (0-2999)
-					file_offset = Read_Register(NDEF_FILE_OFFSET);// the file offset that the data begins at
-					file_length = Read_Register(NDEF_FILE_LENGTH);// how much of the file is in the RF430 buffer
+					interrupt_serviced |= DATA_TRANSACTION_INT_FLAG; // clear this flag later
+					buffer_start = Read_Register(NDEF_BUFFER_START); // where to start in the RF430 buffer to read the file data (0-2999)
+					file_offset = Read_Register(NDEF_FILE_OFFSET); // the file offset that the data begins at
+					file_length = Read_Register(NDEF_FILE_LENGTH); // how much of the file is in the RF430 buffer
 
 					//can have bounds check for the requested length
 					ReadDataOnFile(SelectedFile, buffer_start, file_offset,
 							file_length);
 					Write_Register(INT_FLAG_REG, interrupt_serviced); // ACK the flags to clear
-					Write_Register(HOST_RESPONSE, INT_SERVICED_FIELD);// the interrup has been serviced
+					Write_Register(HOST_RESPONSE, INT_SERVICED_FIELD); // the interrup has been serviced
 
 					break;
 				}
 
-				}//end of switch
-
+				} //end of switch
 
 			}
 
@@ -163,11 +165,9 @@ int main(void) {
 
 			flags = 0;
 
-			//renable the interrupt
-			Write_Register(INT_ENABLE_REG, DATA_TRANSACTION_INT_ENABLE);
-
-			//	P2IFG &= ~BIT2;	//clear the interrupt again
-			//	P2IE |= BIT2;	//enable the interrupt
+			nfcFired = 0;
+			P2IFG &= ~BIT2;	//clear the interrupt again
+			P2IE |= BIT2;	//enable the interrupt
 
 		}
 
@@ -190,19 +190,19 @@ int main(void) {
 #endif
 			temp = Temperature;
 
-			temp = temp/1000;
-			FileTextE104[10] = (char)temp+48;
-			temp = Temperature%1000;
+			temp = temp / 1000;
+			FileTextE104[10] = (char) temp + 48;
+			temp = Temperature % 1000;
 
-			temp = temp/100;
-			FileTextE104[11] = (char)temp+48;
-			temp = Temperature%100;
+			temp = temp / 100;
+			FileTextE104[11] = (char) temp + 48;
+			temp = Temperature % 100;
 
-			temp = temp/13;
-			FileTextE104[13] = (char)temp+48;
-			temp = Temperature%10;
+			temp = temp / 13;
+			FileTextE104[13] = (char) temp + 48;
+			temp = Temperature % 10;
 
-			FileTextE104[14] = (char)temp+48;
+			FileTextE104[14] = (char) temp + 48;
 
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 		}
@@ -228,52 +228,48 @@ void initGPIO(void) {
 
 }
 
-//#pragma vector=PORT2_VECTOR
-//__interrupt void PORT2_ISR(void)
-//{
-//	//INTO interrupt fired
-//	if(P2IFG & BIT2 )
-//	{
-//	    P2IE &= ~(1<<2); //disable INTO
-//	    P2IFG &= ~(1<<2); //clear interrupt flag
-//	    GPIO_setOutputHighOnPin( GPIO_PORT_P4, GPIO_PIN6 );
-//	    //Write_Register(CONTROL_REG, INT_ENABLE + INTO_DRIVE); //clear control reg to disable RF
-//	   // __delay_cycles(750000);
-//	 //   GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6 );
-//	    P2IE |= (1<<2);
-//	}
-//}
+#pragma vector=PORT2_VECTOR
+__interrupt void PORT2_ISR(void) {
+	//INTO interrupt fired
+	if (P2IFG & BIT2) {
+		P2IE &= ~BIT2; //disable INTO
+		P2IFG &= ~BIT2; //clear interrupt flag
+		nfcFired = 1;
 
-//*****************************************************************************
-// Interrupt Service Routine
-//*****************************************************************************
-#pragma vector=TIMER1_A1_VECTOR
-__interrupt void timer1_ISR(void) {
-
-	//**************************************************************************
-	// 4. Timer ISR and vector
-	//**************************************************************************
-	switch (__even_in_range(TA1IV, TA1IV_TAIFG)) {
-	case TA1IV_NONE:
-		break;                 // (0x00) None
-	case TA1IV_TACCR1:                      // (0x02) CCR1 IFG
-		_no_operation();
-		break;
-	case TA1IV_TACCR2:                      // (0x04) CCR2 IFG
-		_no_operation();
-		break;
-	case TA1IV_3:
-		break;                    // (0x06) Reserved
-	case TA1IV_4:
-		break;                    // (0x08) Reserved
-	case TA1IV_5:
-		break;                    // (0x0A) Reserved
-	case TA1IV_6:
-		break;                    // (0x0C) Reserved
-	case TA1IV_TAIFG:                       // (0x0E) TA1IFG - TAR overflow
-		timerFired = 1;
-		break;
-	default:
-		_never_executed();
+		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO
 	}
 }
+
+////*****************************************************************************
+//// Interrupt Service Routine
+////*****************************************************************************
+//#pragma vector=TIMER1_A1_VECTOR
+//__interrupt void timer1_ISR(void) {
+//
+//	//**************************************************************************
+//	// 4. Timer ISR and vector
+//	//**************************************************************************
+//	switch (__even_in_range(TA1IV, TA1IV_TAIFG)) {
+//	case TA1IV_NONE:
+//		break;                 // (0x00) None
+//	case TA1IV_TACCR1:                      // (0x02) CCR1 IFG
+//		_no_operation();
+//		break;
+//	case TA1IV_TACCR2:                      // (0x04) CCR2 IFG
+//		_no_operation();
+//		break;
+//	case TA1IV_3:
+//		break;                    // (0x06) Reserved
+//	case TA1IV_4:
+//		break;                    // (0x08) Reserved
+//	case TA1IV_5:
+//		break;                    // (0x0A) Reserved
+//	case TA1IV_6:
+//		break;                    // (0x0C) Reserved
+//	case TA1IV_TAIFG:                       // (0x0E) TA1IFG - TAR overflow
+//		timerFired = 1;
+//		break;
+//	default:
+//		_never_executed();
+//	}
+//}

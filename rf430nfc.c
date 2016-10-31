@@ -128,8 +128,8 @@ void RF430_Init(void) {
 	P2DIR &= ~BIT2;	//setting as input ///by default as gpio
 	P2OUT |= BIT2;	//pull up is selected
 	P2REN |= BIT2;	//enable pullup
-	//	P2IFG &= ~BIT2;	//clears the interrupt
-	//	P2IES |= BIT2;	// int at htol transition
+	P2IFG &= ~BIT2;	//clears the interrupt
+	P2IES |= BIT2;	// int at htol transition
 
 	_delay_cycles(4000000); // Leave time for the RF430CL33H to get itself initialized;
 	while (!(Read_Register(STATUS_REG) & READY))
@@ -176,8 +176,8 @@ void RF430_Init(void) {
 	// sets the command timeouts, generally should stay at these settings
 	Write_Register(SWTX_INDEX, 0x3B); // maximum allowable wait time extension request
 
-	//	P2IFG &= ~BIT2;	//clear the interrupt again
-	//	P2IE |= BIT2;	//enable the interrupt
+	P2IFG &= ~BIT2;	//clear the interrupt again
+	P2IE |= BIT2;	//enable the interrupt
 
 	AppInit();
 
