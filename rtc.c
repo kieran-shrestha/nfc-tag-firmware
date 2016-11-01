@@ -6,9 +6,12 @@
  */
 
 #include "rtc.h"
-#include "msp430.h"
-#include "myuart.h"
-#include "stdint.h"
+#include "datalog.h"
+#define DEBUG 1
+
+unsigned int counter = 0;
+extern unsigned char tempFired;
+extern datalog_interval_type interval;
 
 void RTC_init(){
 
@@ -30,8 +33,8 @@ void RTC_init(){
 
 }
 
-void getTimeStamp(){
-	rtc_Type rtcData;
+rtcType getTimeStamp(){
+	rtcType rtcData;
 	uint8_t x;
 
 	x = RTCHOUR;
@@ -60,6 +63,7 @@ void getTimeStamp(){
 	x >>= 4;
 	rtcData.day[1] = (x & 0x0F ) + 48;
 
+#ifdef DEBUG
 	myuart_tx_byte(rtcData.hour[1]);
 	myuart_tx_byte(rtcData.hour[0]);
 
@@ -79,6 +83,9 @@ void getTimeStamp(){
 	myuart_tx_byte(rtcData.day[1]);
 	myuart_tx_byte(rtcData.day[0]);
 
+#endif
+
+	return rtcData;
 }
 
 
@@ -89,8 +96,15 @@ __interrupt void RTCISR(void)
     case RTCIV_NONE: break;
     case RTCIV_RTCRDYIFG: break;
     case RTCIV_RTCTEVIFG:		// Should fire and be here once ever minute
+
+    	counter++;
+    	if(counter == interval.temp_interval_minute){
+    		counter = 0;
+    		tempFired = 1;
+    	}
     	__no_operation();
-    	LPM4_EXIT;
+		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO
+
 
       break;
     case RTCIV_RTCAIFG:		// Alarm Flag

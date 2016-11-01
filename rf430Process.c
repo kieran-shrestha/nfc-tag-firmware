@@ -40,7 +40,6 @@ void rf430Interrupt(uint16_t flags) {
 				Write_Register(INT_FLAG_REG, interrupt_serviced); // ACK the flags to clear
 				Write_Register(HOST_RESPONSE,
 						INT_SERVICED_FIELD + FILE_EXISTS_FIELD); // indicate to the RF430 that the file exist
-
 			} else {
 				Write_Register(INT_FLAG_REG, interrupt_serviced); // ACK the flags to clear
 				Write_Register(HOST_RESPONSE,
@@ -57,10 +56,14 @@ void rf430Interrupt(uint16_t flags) {
 			uint16_t file_offset;
 			uint16_t file_length;
 			buffer_start = Read_Register(NDEF_BUFFER_START);
+			myuart_tx_byte('b');
+			myuart_tx_byte(buffer_start);
 			// where to start writing the file info in the RF430 buffer (0-2999)
 			file_offset = Read_Register(NDEF_FILE_OFFSET);
+			myuart_tx_byte(file_offset);
 			// what part of the file to start sending
 			file_length = Read_Register(NDEF_FILE_LENGTH);
+			myuart_tx_byte(file_length);
 			// how much of the file starting at offset to send
 			// we can send more than requested, called caching
 			// as long as we write back into the length register how

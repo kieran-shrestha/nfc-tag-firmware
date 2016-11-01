@@ -8,6 +8,11 @@
 #ifndef RTC_H_
 #define RTC_H_
 
+#include "msp430.h"
+#include "myuart.h"
+#include "stdint.h"
+#include "datalog.h"
+
 typedef struct rtc_Type
 {
 	unsigned char hour[2];
@@ -16,10 +21,12 @@ typedef struct rtc_Type
 	unsigned char day[2];
 	unsigned char month[2];
 
-}rtc_Type;
+}rtcType;
+
+rtcType timestamp;
 
 void RTC_init();
-void getTimeStamp();
+rtcType getTimeStamp();
 
 
 #endif /* RTC_H_ */

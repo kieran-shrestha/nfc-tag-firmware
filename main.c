@@ -8,10 +8,9 @@
 #include "myuart.h"
 #include "myTimers.h"
 #include "rtc.h"
+#include "datalog.h"
 
 #define DEBUG 1
-
-extern uint8_t FileTextE104[30];
 
 //Temp_Modes_t g_ui8TemperatureModeFlag;
 unsigned char ui8TemperatureNegFlag;
@@ -28,7 +27,7 @@ typedef enum {
 
 Temp_Modes_t g_ui8TemperatureModeFlag = Celcius;
 
-unsigned char timerFired = 0;
+unsigned char tempFired = 0;
 unsigned char nfcFired = 0;
 
 //***** Prototypes ************************************************************
@@ -49,6 +48,7 @@ int main(void) {
 	initClocks();				// set aclk 10K, smclk 4M, mclk 4M\
 
 	RTC_init();					//initialize rtc
+	datalog_Init();				//initialize datalogger setting
 #ifdef DEBUG
 	myuart_init();				// at 9600 baud
 #endif
@@ -73,7 +73,6 @@ int main(void) {
 
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN5);
 			GPIO_setOutputHighOnPin( GPIO_PORT_P4, GPIO_PIN5);
-			timerFired = 1;
 			do {
 				if (flags) {
 					rf430Interrupt(flags);
@@ -87,24 +86,21 @@ int main(void) {
 			nfcFired = 0;
 			P2IFG &= ~BIT2;	//clear the interrupt again
 			P2IE |= BIT2;	//enable the interrupt
-			getTimeStamp();
-
 		}
 
 /********************************************************************************************************************************************************/
 /******************************************Temperature code *********************************************************************************************
  *******************************************************************************************************************************************************/
-
-		if (timerFired) {
-			unsigned int temp;
-			timerFired = 0;
+		if (tempFired) {
+			tempFired = 0;
 			GPIO_setOutputHighOnPin( GPIO_PORT_P4, GPIO_PIN6);
-
 			TMP_Get_Temp(&Temperature, &ui8TemperatureNegFlag,
 					g_ui8TemperatureModeFlag);
 			if (ui8TemperatureNegFlag) {
-				Temperature = (-1.0) * Temperature;
+				Temperature = (-1.0) * Temperature;	//think shoud change to signed variable
 			}
+			data_buffer(Temperature);
+
 #ifdef DEBUG
 			sprintf(str, "Temperature: %d ", Temperature);
 			myuart_tx_string(str);
@@ -112,22 +108,6 @@ int main(void) {
 			myuart_tx_byte('C');
 			myuart_tx_byte(0x0D);
 #endif
-			temp = Temperature;
-
-			temp = temp / 1000;
-			FileTextE104[10] = (char) temp + 48;
-			temp = Temperature % 1000;
-
-			temp = temp / 100;
-			FileTextE104[11] = (char) temp + 48;
-			temp = Temperature % 100;
-
-			temp = temp / 13;
-			FileTextE104[13] = (char) temp + 48;
-			temp = Temperature % 10;
-
-			FileTextE104[14] = (char) temp + 48;
-
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 		}
 
@@ -160,7 +140,6 @@ __interrupt void PORT2_ISR(void) {
 		P2IE &= ~BIT2; //disable INTO
 		P2IFG &= ~BIT2; //clear interrupt flag
 		nfcFired = 1;
-
 		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO
 	}
 }
