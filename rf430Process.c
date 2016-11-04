@@ -3,7 +3,7 @@
 #include "rf430Process.h"
 #include "stdint.h"
 
-#define DEBUG
+#define DEBUG 1
 
 extern uint16_t SelectedFile;
 
@@ -12,6 +12,7 @@ void rf430Interrupt(uint16_t flags) {
 	uint16_t interrupt_serviced = 0;//which interrupt is just served of nfc ic
 
 	if (flags & FIELD_REMOVED_INT_ENABLE) {
+
 #ifdef DEBUG
 		myuart_tx_string("Removed from the RF field");
 #endif
@@ -56,7 +57,6 @@ void rf430Interrupt(uint16_t flags) {
 			uint16_t file_offset;
 			uint16_t file_length;
 			buffer_start = Read_Register(NDEF_BUFFER_START);
-			myuart_tx_byte('b');
 			myuart_tx_byte(buffer_start);
 			// where to start writing the file info in the RF430 buffer (0-2999)
 			file_offset = Read_Register(NDEF_FILE_OFFSET);

@@ -1,12 +1,11 @@
 #include <driverlib.h>
-#include <stdio.h>
 
 #include "myclocks.h"
 #include "tmp112.h"
 #include "rf430nfc.h"
 #include "rf430Process.h"
 #include "myuart.h"
-#include "myTimers.h"
+//#include "myTimers.h"
 #include "rtc.h"
 #include "datalog.h"
 
@@ -37,9 +36,6 @@ int main(void) {
 
 	unsigned int Temperature;		//to hold the temperature
 	unsigned int flags = 0;	// to hold the interuupt flag of nfc ic
-#ifdef DEBUG
-	char str[30];			//for sprintf
-#endif
 
 	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 
@@ -48,18 +44,20 @@ int main(void) {
 	initClocks();				// set aclk 10K, smclk 4M, mclk 4M\
 
 	RTC_init();					//initialize rtc
-	datalog_Init();				//initialize datalogger setting
+
 #ifdef DEBUG
 	myuart_init();				// at 9600 baud
 #endif
+
+	datalog_Init();				//initialize datalogger setting
 	//initTimers();				// for 6.5sec temperature reads
 	TMP_Config_Init();			// configure to be in shutdown one shot mode
 	RF430_Init();				// resets the nfc ic
 
-	//__bis_SR_register(GIE);
 #ifdef DEBUG
 	myuart_tx_string("Program started...\r\n");
 #endif
+	FRAMCtl_fillMemory32(0x00,0x00,1);
 	while (1) {
 		__bis_SR_register(LPM4_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
 		__no_operation();
@@ -101,13 +99,6 @@ int main(void) {
 			}
 			data_buffer(Temperature);
 
-#ifdef DEBUG
-			sprintf(str, "Temperature: %d ", Temperature);
-			myuart_tx_string(str);
-			myuart_tx_byte(0xB0);
-			myuart_tx_byte('C');
-			myuart_tx_byte(0x0D);
-#endif
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 		}
 

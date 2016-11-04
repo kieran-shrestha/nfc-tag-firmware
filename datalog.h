@@ -13,6 +13,7 @@
 typedef struct datalog_interval_type {
 
 	unsigned int temp_interval_minute;
+	unsigned int numberOfLogs;
 
 }datalog_interval_type;
 

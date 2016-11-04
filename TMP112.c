@@ -1,4 +1,4 @@
-#include <driverlib.h>
+#include "msp430.h"
 #include "tmp112.h"
 
 void TMP_I2C_Init(void){

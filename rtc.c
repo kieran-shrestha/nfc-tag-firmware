@@ -7,9 +7,8 @@
 
 #include "rtc.h"
 #include "datalog.h"
-#define DEBUG 1
 
-unsigned int counter = 0;
+unsigned int mincounter = 0;
 extern unsigned char tempFired;
 extern datalog_interval_type interval;
 
@@ -63,28 +62,6 @@ rtcType getTimeStamp(){
 	x >>= 4;
 	rtcData.day[1] = (x & 0x0F ) + 48;
 
-#ifdef DEBUG
-	myuart_tx_byte(rtcData.hour[1]);
-	myuart_tx_byte(rtcData.hour[0]);
-
-	myuart_tx_byte(':');
-
-	myuart_tx_byte(rtcData.minute[1]);
-	myuart_tx_byte(rtcData.minute[0]);
-
-	myuart_tx_byte(0x20);
-
-	myuart_tx_byte(rtcData.year[1]);
-	myuart_tx_byte(rtcData.year[0]);
-	myuart_tx_byte('/');
-	myuart_tx_byte(rtcData.month[1]);
-	myuart_tx_byte(rtcData.month[0]);
-	myuart_tx_byte('/');
-	myuart_tx_byte(rtcData.day[1]);
-	myuart_tx_byte(rtcData.day[0]);
-
-#endif
-
 	return rtcData;
 }
 
@@ -97,9 +74,9 @@ __interrupt void RTCISR(void)
     case RTCIV_RTCRDYIFG: break;
     case RTCIV_RTCTEVIFG:		// Should fire and be here once ever minute
 
-    	counter++;
-    	if(counter == interval.temp_interval_minute){
-    		counter = 0;
+    	mincounter++;
+    	if(mincounter == interval.temp_interval_minute){
+    		mincounter = 0;
     		tempFired = 1;
     	}
     	__no_operation();

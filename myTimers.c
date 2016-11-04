@@ -1,12 +1,8 @@
 //***** Header Files **********************************************************
 #include <driverlib.h>
 #include "myTimers.h"
-#include "TMP112.h"
-#include <stdio.h>
-#include "myuart.h"
 
 //***** Global Variables ******************************************************
-float temp;
 
 //*****************************************************************************
 // Initialize Timer

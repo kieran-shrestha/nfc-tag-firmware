@@ -9,7 +9,6 @@
 #define RTC_H_
 
 #include "msp430.h"
-#include "myuart.h"
 #include "stdint.h"
 #include "datalog.h"
 
