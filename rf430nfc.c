@@ -19,7 +19,7 @@ struct NdefFile_Type NdefFiles[3];
 uint16_t NumberOfFiles = 0;
 const uint16_t E104_Length;
 
-uint8_t CCFileText[100] = { 0x00, 0x0F, /* CCLEN */
+uint8_t CCFileText[15] = { 0x00, 0x0F, /* CCLEN */
 		0x20, /* Mapping version 2.0 */
 		0x00, 0xF9, /* MLe (249 bytes); Maximum R-APDU data size */
 		0x00, 0xF6, /* MLc (246 bytes); Maximum C-APDU data size */
@@ -31,7 +31,7 @@ uint8_t CCFileText[100] = { 0x00, 0x0F, /* CCLEN */
 		0x00 /* NDEF file write access condition; write access without any security */
 }; //CC file text
 
-uint8_t FileTextE104[32] = { 0x00, 0x21, /* NLEN; NDEF length (3 byte long message) */
+uint8_t FileTextE104[43] = { 0x00, 0x21, /* NLEN; NDEF length (3 byte long message) */
 		0xD1, 0x01, 0x1D, 0x54, /* T = text */
 		0x02, 0x65, 0x6E, /* 'e', 'n', */
 
@@ -106,6 +106,7 @@ void RF430_I2C_Init(void) {
 	UCB0CTLW0 |= UCSSEL_2;                    		// SMCLK = 4MHz
 
 	UCB0BRW = 10; 								// Baudrate = SMLK/40 = 400kHz
+
 
 	UCB0I2CSA = RF430_I2C_ADDR;					// Set Slave Address
 	UCB0IE = 0;

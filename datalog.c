@@ -32,7 +32,7 @@ unsigned int numOfLogsInFram = 0;
 
 datalog_interval_type interval;
 int counter;
-extern uint8_t FileTextE104[32];
+extern uint8_t FileTextE104[];
 extern rtcType timestamp;
 
 void datalog_Init(){

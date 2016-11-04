@@ -7,21 +7,31 @@
 
 #include "rtc.h"
 #include "datalog.h"
+#include "time.h"
+
 
 unsigned int mincounter = 0;
 extern unsigned char tempFired;
 extern datalog_interval_type interval;
 
+
+inline uint8_t decToBcd(uint8_t val)
+{
+  return ( (val/10*16) + (val%10) );
+}
+
 void RTC_init(){
+	time_t mytime =time(NULL);
+	struct tm tm = *localtime(&mytime);
 
 	RTCCTL01 |= RTCHOLD | RTCTEV_0 | RTCBCD | RTCCTL0 | RTCTEVIE;//| RTCAIE;
 
-	RTCHOUR = 0x20;
-	RTCMIN = 0x50;
+	RTCHOUR = decToBcd(tm.tm_hour);
+	RTCMIN = decToBcd(tm.tm_min);
 	RTCSEC = 0x00;
 	RTCYEAR = 0x2016;
-	RTCMON = 0x10;
-	RTCDAY = 0x31;
+	RTCMON = decToBcd(tm.tm_mon);
+	RTCDAY = decToBcd(tm.tm_mday);
 
 	RTCAMIN = 0x00;
 	RTCAHOUR = 0x00;

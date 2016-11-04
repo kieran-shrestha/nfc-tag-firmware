@@ -2,8 +2,9 @@
 #include "rf430nfc.h"
 #include "rf430Process.h"
 #include "stdint.h"
+#include <stdio.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 extern uint16_t SelectedFile;
 
@@ -56,14 +57,15 @@ void rf430Interrupt(uint16_t flags) {
 			uint16_t buffer_start;
 			uint16_t file_offset;
 			uint16_t file_length;
+#ifdef DEBUG
+			char str[30];
+			myuart_tx_string("entered reading section1\n\r");
+#endif
 			buffer_start = Read_Register(NDEF_BUFFER_START);
-			myuart_tx_byte(buffer_start);
 			// where to start writing the file info in the RF430 buffer (0-2999)
 			file_offset = Read_Register(NDEF_FILE_OFFSET);
-			myuart_tx_byte(file_offset);
 			// what part of the file to start sending
 			file_length = Read_Register(NDEF_FILE_LENGTH);
-			myuart_tx_byte(file_length);
 			// how much of the file starting at offset to send
 			// we can send more than requested, called caching
 			// as long as we write back into the length register how
@@ -73,7 +75,10 @@ void rf430Interrupt(uint16_t flags) {
 
 			file_length = SendDataOnFile(SelectedFile, buffer_start,
 					file_offset, file_length);
-
+#ifdef DEBUG
+			sprintf(str, "\n\rbuff-%d off-%d len-%d self-%d\n\r",buffer_start,file_offset,file_length,SelectedFile);
+			myuart_tx_string(str);
+#endif
 			Write_Register(NDEF_FILE_LENGTH, file_length); // how much was actually written
 			Write_Register(INT_FLAG_REG, interrupt_serviced); // ACK the flags to clear
 			Write_Register(HOST_RESPONSE, INT_SERVICED_FIELD); // indicate that we have serviced the request
@@ -86,7 +91,10 @@ void rf430Interrupt(uint16_t flags) {
 			uint16_t buffer_start;
 			uint16_t file_offset;
 			uint16_t file_length;
-
+#ifdef DEBUG
+			char str[30];
+			myuart_tx_string("entered writing section1\n\r");
+#endif
 			interrupt_serviced |= DATA_TRANSACTION_INT_FLAG; // clear this flag later
 			buffer_start = Read_Register(NDEF_BUFFER_START); // where to start in the RF430 buffer to read the file data (0-2999)
 			file_offset = Read_Register(NDEF_FILE_OFFSET); // the file offset that the data begins at
@@ -95,6 +103,10 @@ void rf430Interrupt(uint16_t flags) {
 			//can have bounds check for the requested length
 			ReadDataOnFile(SelectedFile, buffer_start, file_offset,
 					file_length);
+#ifdef DEBUG
+			sprintf(str, "\n\rbuff-%d off-%d len-%d self-%d\n\r",buffer_start,file_offset,file_length,SelectedFile);
+			myuart_tx_string(str);
+#endif
 			Write_Register(INT_FLAG_REG, interrupt_serviced); // ACK the flags to clear
 			Write_Register(HOST_RESPONSE, INT_SERVICED_FIELD); // the interrupt has been serviced
 

@@ -43,11 +43,10 @@ int main(void) {
 	initGPIO();
 	initClocks();				// set aclk 10K, smclk 4M, mclk 4M\
 
-	RTC_init();					//initialize rtc
-
 #ifdef DEBUG
 	myuart_init();				// at 9600 baud
 #endif
+	RTC_init();					//initialize rtc
 
 	datalog_Init();				//initialize datalogger setting
 	//initTimers();				// for 6.5sec temperature reads
@@ -57,7 +56,6 @@ int main(void) {
 #ifdef DEBUG
 	myuart_tx_string("Program started...\r\n");
 #endif
-	FRAMCtl_fillMemory32(0x00,0x00,1);
 	while (1) {
 		__bis_SR_register(LPM4_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
 		__no_operation();
@@ -108,6 +106,25 @@ int main(void) {
 }
 
 void initGPIO(void) {
+	//setting unused pins to low
+
+	P1DIR |= 0b00110111;
+#ifdef DEBUG
+	P2DIR |= 0b10111000;
+#else
+	P2DIR |= 0b10111011;
+#endif
+	P3DIR |= 0b11001111;
+	P4DIR |= 0xFF;
+	PJDIR |= 0b11001111;
+
+	P1OUT = 0x00;
+	P2OUT = 0x00;
+	P3OUT = 0x00;
+	P4OUT = 0x00;
+	PJOUT = 0X00;
+
+
 	GPIO_setAsOutputPin( GPIO_PORT_P2, GPIO_PIN6);		//for powering the IIC
 	GPIO_setOutputHighOnPin( GPIO_PORT_P2, GPIO_PIN6);
 
@@ -119,6 +136,7 @@ void initGPIO(void) {
 
 	P1SEL1 |= BIT6;		//setting p1.6 as sda
 	P1SEL1 |= BIT7;		//setting p1.7 as scl
+
 
 	PMM_unlockLPM5();
 
