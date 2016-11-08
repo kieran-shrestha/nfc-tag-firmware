@@ -1,6 +1,10 @@
 #include <gpio.h>
 #include "rf430nfc.h"
 #include <stdint.h>
+#include <stdio.h>
+#include "myuart.h"
+
+#define DEBUG
 
 unsigned char RxData[2] = { 0, 0 };
 unsigned char TxData[2] = { 0, 0 };
@@ -31,12 +35,12 @@ uint8_t CCFileText[15] = { 0x00, 0x0F, /* CCLEN */
 		0x00 /* NDEF file write access condition; write access without any security */
 }; //CC file text
 
-uint8_t FileTextE104[43] = { 0x00, 0x21, /* NLEN; NDEF length (3 byte long message) */
-		0xD1, 0x01, 0x1D, 0x54, /* T = text */
-		0x02, 0x65, 0x6E, /* 'e', 'n', */
+uint8_t FileTextE104[43] = { 0x00, 0x1F, /* NLEN; NDEF length (3 byte long message) */ \
+		0xD1, 0x01, 0x1B, 0x54, /* T = text */\
+		0x02, 0x65, 0x6E, /* 'e', 'n', */\
 
 		/* 'T23.34THH:MM:20YY/MM/DD' NDEF data; */
-		0x54, 0x00, 0x00, 0x2E, 0x00, 0x00, 0x54, 0x00, 0x00, 0x3A, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x2F, 0x00, 0x00, 0x2F, 0x00, 0x00 ,0x0D
+		0x54, 0x00, 0x00, 0x2E, 0x00, 0x00, 0x54, 0x00, 0x00, 0x3A, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x2F, 0x00, 0x00, 0x2F, 0x00, 0x00 ,0x0D \
 
 }; //Ndef file text
 
@@ -310,14 +314,26 @@ uint16_t SendDataOnFile(uint16_t selectedFile, uint16_t buffer_start,
 	uint16_t ret_length;
 	uint16_t file_length;
 
+#ifdef DEBUG
+	char str[30];
+#endif
+
 	file_length = (((uint16_t) NdefFiles[selectedFile].FilePointer[0]) << 8)
 					+ NdefFiles[selectedFile].FilePointer[1];
 	// reads the NLEN of the file
+#ifdef DEBUG
+		sprintf(str, "\n\rFile_lenght: %d ", file_length);
+		myuart_tx_string(str);
+#endif
 
 	// make sure we are not sending above the length of the file (the send data early feature above does not do file length check)
 	// if reader requests data we can expect that it is the correct length
 	if (file_length < (file_offset + length)) {
 		length = file_length - file_offset;
+#ifdef DEBUG
+		sprintf(str, "\n\rlength: %d  offset: %d ", length ,file_offset);
+		myuart_tx_string(str);
+#endif
 	}
 
 	Write_Continuous(buffer_start,
