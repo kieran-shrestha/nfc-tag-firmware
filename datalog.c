@@ -25,7 +25,7 @@
 unsigned char log_StartOfData[DATA_WIDTH][SENDTFRAMTHRSHLD];
 
 #pragma PERSISTENT (FRAM_LOG)
-unsigned char FRAM_LOG[DATA_WIDTH][1500]={0};
+unsigned char FRAM_LOG[DATA_WIDTH][150]={0};
 
 #pragma PERSISTENT (numOfLogsInFram)
 unsigned int numOfLogsInFram = 0;
@@ -162,6 +162,7 @@ void data_buffer(unsigned int Temperature){
 
 		numOfLogsInFram+=counter;
 		counter = 0;
+
 #ifdef DEBUG
 		sprintf(str,"\n\rTL=%d dumping all\n\r",numOfLogsInFram);
 		myuart_tx_string(str);

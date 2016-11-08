@@ -31,11 +31,13 @@ uint8_t CCFileText[15] = { 0x00, 0x0F, /* CCLEN */
 		0x00 /* NDEF file write access condition; write access without any security */
 }; //CC file text
 
-uint8_t FileTextE104[43] = { 0x00, 0x21, /* NLEN; NDEF length (3 byte long message) */
-		0xD1, 0x01, 0x1D, 0x54, /* T = text */
+
+#pragma PERSISTENT (FileTextE104)
+uint8_t FileTextE104[1000] = { 0x01, 0xF4, /* NLEN; NDEF length (3 byte long message) */
+		0xD1, 0x01, /*0x1D*/0xF9, 0x54, /* T = text */
 		0x02, 0x65, 0x6E, /* 'e', 'n', */
 
-		/* 'T23.34THH:MM:20YY/MM/DD' NDEF data; */
+		/* 'T23.34THH:MM:20YY/MM/DD0x0d' NDEF data; */
 		0x54, 0x00, 0x00, 0x2E, 0x00, 0x00, 0x54, 0x00, 0x00, 0x3A, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x2F, 0x00, 0x00, 0x2F, 0x00, 0x00 ,0x0D
 
 }; //Ndef file text
@@ -44,6 +46,7 @@ uint16_t SelectedFile;		//the file that is currently selected
 
 void AppInit() {
 	// Init CC file info
+	int i;
 	NdefFiles[0].FileID[0] = 0xE1;
 	NdefFiles[0].FileID[1] = 0x03;
 	NdefFiles[0].FilePointer = (uint8_t *) CCFileText;
@@ -54,7 +57,9 @@ void AppInit() {
 	NdefFiles[1].FileID[1] = 0x04;
 	NdefFiles[1].FilePointer = (uint8_t *) FileTextE104;
 	//NdefFiles[1].FileLength = 0;		//?
-
+	for(i = 50;i<1000;i++){
+		FileTextE104[i] = 'a';
+	}
 	NumberOfFiles = 2; 			//the number if NDEF files available
 	SelectedFile = 0;			//default to CC file
 
@@ -168,7 +173,7 @@ void RF430_Init(void) {
 	}
 
 	//only interrupt for general type 4 request
-	Write_Register(INT_ENABLE_REG,
+	Write_Register(INT_ENABLE_REG, EXTRA_DATA_IN_INT_ENABLE +
 			DATA_TRANSACTION_INT_ENABLE + FIELD_REMOVED_INT_ENABLE);
 
 	//Configure INTO pin for active low and enable RF
