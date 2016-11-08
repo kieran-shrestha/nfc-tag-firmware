@@ -14,6 +14,7 @@ unsigned int mincounter = 0;
 extern unsigned char tempFired;
 extern datalog_interval_type interval;
 
+unsigned char check = 0;
 
 inline uint8_t decToBcd(uint8_t val)
 {
@@ -87,7 +88,8 @@ __interrupt void RTCISR(void)
     	mincounter++;
     	if(mincounter == interval.temp_interval_minute){
     		mincounter = 0;
-    		tempFired = 1;
+    	//	tempFired = 1;
+    		check = 1;
     	}
     	__no_operation();
 		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO

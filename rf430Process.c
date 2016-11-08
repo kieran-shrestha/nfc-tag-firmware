@@ -4,7 +4,7 @@
 #include "stdint.h"
 #include <stdio.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 extern uint16_t SelectedFile;
 
@@ -126,7 +126,6 @@ void rf430Interrupt(uint16_t flags) {
 		unsigned int file_length = 0;
 
 		interrupt_serviced |= EXTRA_DATA_IN_FLAG;
-myuart_tx_byte('x');
 		if(SelectedFile == 1){
 			buffer_start = Read_Register(NDEF_BUFFER_START);
 			file_offset = Read_Register(NDEF_FILE_OFFSET);
