@@ -38,14 +38,14 @@ unsigned char bufferHold[DATA_WIDTH];
 
 void datalog_Init(){
 	interval.temp_interval_minute = 1;
-	bufferHold[0] = 'T';
+	bufferHold[0] = ' ';
 	bufferHold[3] = '.';
-	bufferHold[6] = 'C';
+	bufferHold[6] = ',';
 	bufferHold[9] = ':';
-	bufferHold[12] = 'D';
+	bufferHold[12] = ',';
 	bufferHold[17] = '/';
 	bufferHold[20] = '/';
-	bufferHold[23] = 0x0A;
+	bufferHold[23] = 0x0D;
 }
 
 
@@ -124,14 +124,29 @@ void data_buffer(unsigned int Temperature){
 	myuart_tx_byte(0x0D);
 #endif
 
-	ui16nlenhold += 24;
-	temp = ui16nlenhold;
+	ui16nlenhold += DATA_WIDTH;
+	if(ui16nlenhold >  DATA_WIDTH*200){	//maximum data it can hold
+#ifdef DEBUG
+		myuart_tx_string("\n\r.............Memory full..............\n\r");
+#endif
+		FileTextE104[1] = 0x0A;
+		ui16nlenhold = 0x000A;
+		FileTextE104[0] = 0x00;	//starting again
 
+		FileTextE104[7] = 0x03;
+		FileTextE104[6] = 0x00;
+		numOfLogsInFram = 0;
+		ui16plenhold = 0x0003;
+		ui16nlenhold += DATA_WIDTH;
+	}
+
+	temp = ui16nlenhold;
+/////setting up the length of the ndef record
 	FileTextE104[1] = ( char) ui16nlenhold;
 	temp >>=8;
 	FileTextE104[0] = ( char) temp;
-
-	ui16plenhold += 24;
+/////setting up the length of the ndef payload
+	ui16plenhold += DATA_WIDTH;
 	temp = ui16plenhold;
 
 	FileTextE104[7] = ( char) ui16plenhold;
@@ -139,20 +154,18 @@ void data_buffer(unsigned int Temperature){
 	FileTextE104[6] = ( char) temp;
 
 	for( temp = 0 ; temp < DATA_WIDTH ; temp++){
-		FileTextE104[12 + temp + numOfLogsInFram*24] = bufferHold[temp];
+		FileTextE104[12 + temp + numOfLogsInFram*DATA_WIDTH] = bufferHold[temp];
 	}
 	numOfLogsInFram+=1;
 
 #ifdef DEBUG
-	if(check){
+
 		sprintf(str,"\n\rTL=%d dumping all\n\r",numOfLogsInFram);
 		myuart_tx_string(str);
 		for(temp = 0 ;temp < numOfLogsInFram*24;temp++){
-				myuart_tx_byte(FileTextE104[9+temp]);
+				myuart_tx_byte(FileTextE104[12+temp]);
 		}
 
-	check = 0;
-	}
 #endif
 
 

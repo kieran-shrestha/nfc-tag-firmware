@@ -95,8 +95,14 @@ int main(void) {
 			if (ui8TemperatureNegFlag) {
 				Temperature = (-1.0) * Temperature;	//think shoud change to signed variable
 			}
-			data_buffer(Temperature);
 
+		//	if(Temperature > 20 ){
+		//		GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
+		//		__bis_SR_register(LPM4_bits + GIE);
+		//	}
+		//	else{
+				data_buffer(Temperature);
+	//		}
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 		}
 

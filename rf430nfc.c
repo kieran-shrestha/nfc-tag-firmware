@@ -33,7 +33,7 @@ uint8_t CCFileText[15] = { 0x00, 0x0F, /* CCLEN */
 
 
 #pragma PERSISTENT (FileTextE104)
-uint8_t FileTextE104[2000] = { 0x00, 0x0A, /* NLEN; NDEF length (3 byte long message) */
+uint8_t FileTextE104[35000] = { 0x00, 0x0A, /* NLEN; NDEF length (3 byte long message) */
 		0xC1, 0x01,/*lenghth of four bytes */0x00, 0x00, 0x00, 0x03, 0x54, /* T = text */
 		0x02, 0x65, 0x6E, /* 'e', 'n', */
 
@@ -170,7 +170,7 @@ void RF430_Init(void) {
 	}
 
 	//only interrupt for general type 4 request
-	Write_Register(INT_ENABLE_REG, EXTRA_DATA_IN_INT_ENABLE +
+	Write_Register(INT_ENABLE_REG, /*EXTRA_DATA_IN_INT_ENABLE +*/
 			DATA_TRANSACTION_INT_ENABLE + FIELD_REMOVED_INT_ENABLE);
 
 	//Configure INTO pin for active low and enable RF
