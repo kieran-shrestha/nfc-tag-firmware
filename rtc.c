@@ -14,6 +14,24 @@ unsigned int mincounter = 0;
 extern unsigned char tempFired;
 extern datalog_interval_type interval;
 
+#pragma PERSISTENT (FIRSTBOOT)
+unsigned char FIRSTBOOT = 1;
+
+#pragma PERSISTENT (HOURS)
+unsigned char HOURS = 0;
+
+#pragma PERSISTENT (MINUTES)
+unsigned char MINUTES = 0;
+
+#pragma PERSISTENT (SECONDS)
+unsigned char SECONDS = 0;
+
+#pragma PERSISTENT (MONTHS)
+unsigned char MONTHS = 0;
+
+#pragma PERSISTENT (DAYS)
+unsigned char DAYS = 0;
+
 
 inline uint8_t decToBcd(uint8_t val)
 {
@@ -26,12 +44,25 @@ void RTC_init(){
 
 	RTCCTL01 |= RTCHOLD | RTCTEV_0 | RTCBCD | RTCCTL0 | RTCTEVIE;//| RTCAIE;
 
-	RTCHOUR = decToBcd(tm.tm_hour);
-	RTCMIN = decToBcd(tm.tm_min);
-	RTCSEC = 0x00;
-	RTCYEAR = 0x2016;
-	RTCMON = decToBcd(tm.tm_mon);
-	RTCDAY = decToBcd(tm.tm_mday);
+	if(FIRSTBOOT){
+		FIRSTBOOT = 0;
+		RTCHOUR = decToBcd(tm.tm_hour);
+		RTCMIN = decToBcd(tm.tm_min);
+		RTCSEC = 0x00;
+		RTCYEAR = 0x2016;
+		RTCMON = decToBcd(tm.tm_mon);
+		RTCDAY = decToBcd(tm.tm_mday);
+
+	}else{
+		RTCHOUR = HOURS;
+		RTCMIN = MINUTES;
+		RTCSEC = SECONDS;
+		RTCYEAR = 0x2016;
+		RTCMON = MONTHS;
+		RTCDAY = DAYS;
+	}
+
+
 
 	RTCAMIN = 0x00;
 	RTCAHOUR = 0x00;
@@ -87,7 +118,14 @@ __interrupt void RTCISR(void)
     	mincounter++;
     	if(mincounter == interval.temp_interval_minute){
     		mincounter = 0;
-    		tempFired = 1;
+    		//tempFired = 1;
+    		//UPDATING TIME
+    		HOURS = RTCHOUR;
+    		MINUTES = RTCMIN;
+    		SECONDS = RTCSEC;
+    		MONTHS = RTCMON;
+    		DAYS = RTCDAY;
+
     	}
     	__no_operation();
 		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO

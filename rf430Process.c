@@ -117,5 +117,35 @@ void rf430Interrupt(uint16_t flags) {
 
 	}
 
+	else if (flags & EXTRA_DATA_IN_FLAG){
+		#define AMOUNT_DATA_TO_SENT_EARLY		255							// data to add to the buffer while transmit is happening
+		#define MAX_TAG_BUFFER_SPACE			2998						// actually 3000 but to avoid any possibility of an issue
+
+		unsigned int buffer_start;
+		unsigned int file_offset;
+		unsigned int file_length = 0;
+
+		interrupt_serviced |= EXTRA_DATA_IN_FLAG;
+		if(SelectedFile == 1){
+			buffer_start = Read_Register(NDEF_BUFFER_START);
+			file_offset = Read_Register(NDEF_FILE_OFFSET);
+
+			if((buffer_start + AMOUNT_DATA_TO_SENT_EARLY) >= MAX_TAG_BUFFER_SPACE){
+				// can't fill the buffer anymore
+				// do no fill.  New data request, the remaining data will be shifted to the beggining of the buffer, interrupt will come later.
+				__no_operation();
+
+			}else{
+				file_length = SendDataOnFile(SelectedFile,buffer_start,file_offset,AMOUNT_DATA_TO_SENT_EARLY);
+
+			}
+
+		}
+		Write_Register(NDEF_FILE_LENGTH, file_length);  						// how much was actually written
+		Write_Register(INT_FLAG_REG, interrupt_serviced);						// ACK the flags to clear
+		Write_Register(HOST_RESPONSE, EXTRA_DATA_IN_SENT_FIELD);				// interrupt was serviced
+
+	}
+
 }
 
