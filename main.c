@@ -96,13 +96,17 @@ int main(void) {
 				Temperature = (-1.0) * Temperature;	//think shoud change to signed variable
 			}
 
-		//	if(Temperature > 20 ){
-		//		GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
-		//		__bis_SR_register(LPM4_bits + GIE);
-		//	}
-		//	else{
+			if(Temperature < 3000 ){
+				GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
+#ifdef	DEBUG
+				myuart_tx_string("it is so warm,,, going to sleep...");
+#endif
+				__bis_SR_register(LPM4_bits + GIE);
+				__no_operation();
+			}
+			else{
 				data_buffer(Temperature);
-	//		}
+			}
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 		}
 
