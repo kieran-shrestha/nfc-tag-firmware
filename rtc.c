@@ -18,19 +18,19 @@ extern datalog_interval_type interval;
 unsigned char FIRSTBOOT = 1;
 
 #pragma PERSISTENT (HOURS)
-unsigned char HOURS = 0;
+unsigned char HOURS = 1;
 
 #pragma PERSISTENT (MINUTES)
-unsigned char MINUTES = 0;
+unsigned char MINUTES = 1;
 
 #pragma PERSISTENT (SECONDS)
-unsigned char SECONDS = 0;
+unsigned char SECONDS = 1;
 
 #pragma PERSISTENT (MONTHS)
-unsigned char MONTHS = 0;
+unsigned char MONTHS = 1;
 
 #pragma PERSISTENT (DAYS)
-unsigned char DAYS = 0;
+unsigned char DAYS = 1;
 
 
 inline uint8_t decToBcd(uint8_t val)
@@ -116,15 +116,16 @@ __interrupt void RTCISR(void)
     case RTCIV_RTCTEVIFG:		// Should fire and be here once ever minute
 
     	mincounter++;
+		//UPDATING TIME
+		HOURS = RTCHOUR;
+		MINUTES = RTCMIN;
+		SECONDS = RTCSEC;
+		MONTHS = RTCMON;
+		DAYS = RTCDAY;
+
     	if(mincounter == interval.temp_interval_minute){
     		mincounter = 0;
     		//tempFired = 1;
-    		//UPDATING TIME
-    		HOURS = RTCHOUR;
-    		MINUTES = RTCMIN;
-    		SECONDS = RTCSEC;
-    		MONTHS = RTCMON;
-    		DAYS = RTCDAY;
 
     	}
     	__no_operation();

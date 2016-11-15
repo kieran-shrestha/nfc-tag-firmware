@@ -9,7 +9,9 @@
 #include "rtc.h"
 #include "datalog.h"
 
-#define DEBUG 1
+#define TEMP_RECORD_THRSHLD 3000
+
+//#define DEBUG 1
 
 //Temp_Modes_t g_ui8TemperatureModeFlag;
 unsigned char ui8TemperatureNegFlag;
@@ -59,7 +61,6 @@ int main(void) {
 	while (1) {
 		__bis_SR_register(LPM4_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
 		__no_operation();
-
 /*************************************************************************************************************************************************/
 /********************************nfc code*********************************************************************************************************/
  /***************************************************************************************************************************************************/
@@ -96,16 +97,16 @@ int main(void) {
 				Temperature = (-1.0) * Temperature;	//think shoud change to signed variable
 			}
 
-			if(Temperature < 3000 ){
+			if(Temperature < TEMP_RECORD_THRSHLD ){
+				data_buffer(Temperature);
+			}
+			else{
 				GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 #ifdef	DEBUG
 				myuart_tx_string("it is so warm,,, going to sleep...");
 #endif
-				__bis_SR_register(LPM4_bits + GIE);
+				__bic_SR_register(LPM4_bits + GIE);
 				__no_operation();
-			}
-			else{
-				data_buffer(Temperature);
 			}
 			GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN6);
 		}

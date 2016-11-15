@@ -4,7 +4,7 @@
 #include "stdint.h"
 #include <stdio.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 extern uint16_t SelectedFile;
 

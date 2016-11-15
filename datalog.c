@@ -13,10 +13,11 @@
 #define DATA_WIDTH 24
 #define SENDTFRAMTHRSHLD 2
 
+#define MAX_LOGS 500
 
 #include <stdio.h>
 
-#define DEBUG 1
+//#define DEBUG 1
 
 #pragma PERSISTENT (numOfLogsInFram)
 unsigned int numOfLogsInFram = 0;
@@ -125,7 +126,7 @@ void data_buffer(unsigned int Temperature){
 #endif
 
 	ui16nlenhold += DATA_WIDTH;
-	if(ui16nlenhold >  DATA_WIDTH*200){	//maximum data it can hold
+	if(ui16nlenhold >  DATA_WIDTH*MAX_LOGS){	//maximum data it can hold
 #ifdef DEBUG
 		myuart_tx_string("\n\r.............Memory full..............\n\r");
 #endif
