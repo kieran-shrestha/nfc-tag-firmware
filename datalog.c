@@ -11,9 +11,9 @@
 #include "myuart.h"
 
 #define DATA_WIDTH 24
-#define SENDTFRAMTHRSHLD 2
 
 #define MAX_LOGS 500
+#define CHECK_INTERVAL 5
 
 #include <stdio.h>
 
@@ -38,7 +38,7 @@ extern unsigned char check;
 unsigned char bufferHold[DATA_WIDTH];
 
 void datalog_Init(){
-	interval.temp_interval_minute = 1;
+	interval.temp_interval_minute = CHECK_INTERVAL;
 	bufferHold[0] = ' ';
 	bufferHold[3] = '.';
 	bufferHold[6] = ',';
@@ -125,45 +125,52 @@ void data_buffer(unsigned int Temperature){
 	myuart_tx_byte(0x0D);
 #endif
 
-	ui16nlenhold += DATA_WIDTH;
-	if(ui16nlenhold >  DATA_WIDTH*MAX_LOGS){	//maximum data it can hold
+	if(ui16nlenhold <  DATA_WIDTH*MAX_LOGS){	//maximum data it can hold
+
+		ui16nlenhold += DATA_WIDTH;
+
+		temp = ui16nlenhold;
+	/////setting up the length of the ndef record
+		FileTextE104[1] = ( char) ui16nlenhold;
+		temp >>=8;
+		FileTextE104[0] = ( char) temp;
+	/////setting up the length of the ndef payload
+		ui16plenhold += DATA_WIDTH;
+		temp = ui16plenhold;
+
+		FileTextE104[7] = ( char) ui16plenhold;
+		temp >>= 8;
+		FileTextE104[6] = ( char) temp;
+
+		for( temp = 0 ; temp < DATA_WIDTH ; temp++){
+			FileTextE104[12 + temp + numOfLogsInFram*DATA_WIDTH] = bufferHold[temp];
+		}
+
+		numOfLogsInFram+=1;
+
+	} else {
 #ifdef DEBUG
 		myuart_tx_string("\n\r.............Memory full..............\n\r");
 #endif
-		FileTextE104[1] = 0x0A;
-		ui16nlenhold = 0x000A;
-		FileTextE104[0] = 0x00;	//starting again
+		for(temp = 12 ;temp < MAX_LOGS*DATA_WIDTH - DATA_WIDTH ; temp++){
+			FileTextE104[temp] = FileTextE104[temp + DATA_WIDTH];
+		}
 
-		FileTextE104[7] = 0x03;
-		FileTextE104[6] = 0x00;
-		numOfLogsInFram = 0;
-		ui16plenhold = 0x0003;
-		ui16nlenhold += DATA_WIDTH;
+		for( temp = 0 ; temp < DATA_WIDTH ; temp++){
+			FileTextE104[12 + temp + (numOfLogsInFram-1)*DATA_WIDTH] = bufferHold[temp];
+		}
+
 	}
 
-	temp = ui16nlenhold;
-/////setting up the length of the ndef record
-	FileTextE104[1] = ( char) ui16nlenhold;
-	temp >>=8;
-	FileTextE104[0] = ( char) temp;
-/////setting up the length of the ndef payload
-	ui16plenhold += DATA_WIDTH;
-	temp = ui16plenhold;
 
-	FileTextE104[7] = ( char) ui16plenhold;
-	temp >>= 8;
-	FileTextE104[6] = ( char) temp;
 
-	for( temp = 0 ; temp < DATA_WIDTH ; temp++){
-		FileTextE104[12 + temp + numOfLogsInFram*DATA_WIDTH] = bufferHold[temp];
-	}
-	numOfLogsInFram+=1;
+
 
 #ifdef DEBUG
 
 		sprintf(str,"\n\rTL=%d dumping all\n\r",numOfLogsInFram);
 		myuart_tx_string(str);
-		for(temp = 0 ;temp < numOfLogsInFram*24;temp++){
+		for(temp = 0 ;temp < numOfLogsInFram*DATA_WIDTH;temp++){
 				myuart_tx_byte(FileTextE104[12+temp]);
 		}
 

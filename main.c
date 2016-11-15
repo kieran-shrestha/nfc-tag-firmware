@@ -5,7 +5,7 @@
 #include "rf430nfc.h"
 #include "rf430Process.h"
 #include "myuart.h"
-#include "myTimers.h"
+//#include "myTimers.h"
 #include "rtc.h"
 #include "datalog.h"
 
@@ -51,7 +51,7 @@ int main(void) {
 	RTC_init();					//initialize rtc
 
 	datalog_Init();				//initialize datalogger setting
-	initTimers();				// for 6.5sec temperature reads
+	//initTimers();				// for 6.5sec temperature reads
 	TMP_Config_Init();			// configure to be in shutdown one shot mode
 	RF430_Init();				// resets the nfc ic
 
@@ -167,37 +167,37 @@ __interrupt void PORT2_ISR(void) {
 //*****************************************************************************
 // Interrupt Service Routine
 //*****************************************************************************
-#pragma vector=TIMER1_A1_VECTOR
-__interrupt void timer1_ISR(void) {
-
-	//**************************************************************************
-	// 4. Timer ISR and vector
-	//**************************************************************************
-	switch (__even_in_range(TA1IV, TA1IV_TAIFG)) {
-	case TA1IV_NONE:
-		break;                 // (0x00) None
-	case TA1IV_TACCR1:                      // (0x02) CCR1 IFG
-		_no_operation();
-		break;
-	case TA1IV_TACCR2:                      // (0x04) CCR2 IFG
-		_no_operation();
-		break;
-	case TA1IV_3:
-		break;                    // (0x06) Reserved
-	case TA1IV_4:
-		break;                    // (0x08) Reserved
-	case TA1IV_5:
-		break;                    // (0x0A) Reserved
-	case TA1IV_6:
-		break;                    // (0x0C) Reserved
-	case TA1IV_TAIFG:                       // (0x0E) TA1IFG - TAR overflow
-		tempFired = 1;
-		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO
-		break;
-	default:
-		_never_executed();
-	}
-}
+//#pragma vector=TIMER1_A1_VECTOR
+//__interrupt void timer1_ISR(void) {
+//
+//	//**************************************************************************
+//	// 4. Timer ISR and vector
+//	//**************************************************************************
+//	switch (__even_in_range(TA1IV, TA1IV_TAIFG)) {
+//	case TA1IV_NONE:
+//		break;                 // (0x00) None
+//	case TA1IV_TACCR1:                      // (0x02) CCR1 IFG
+//		_no_operation();
+//		break;
+//	case TA1IV_TACCR2:                      // (0x04) CCR2 IFG
+//		_no_operation();
+//		break;
+//	case TA1IV_3:
+//		break;                    // (0x06) Reserved
+//	case TA1IV_4:
+//		break;                    // (0x08) Reserved
+//	case TA1IV_5:
+//		break;                    // (0x0A) Reserved
+//	case TA1IV_6:
+//		break;                    // (0x0C) Reserved
+//	case TA1IV_TAIFG:                       // (0x0E) TA1IFG - TAR overflow
+//		tempFired = 1;
+//		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO
+//		break;
+//	default:
+//		_never_executed();
+//	}
+//}
 
 
 

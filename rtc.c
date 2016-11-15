@@ -125,7 +125,7 @@ __interrupt void RTCISR(void)
 
     	if(mincounter == interval.temp_interval_minute){
     		mincounter = 0;
-    		//tempFired = 1;
+    		tempFired = 1;
 
     	}
     	__no_operation();
