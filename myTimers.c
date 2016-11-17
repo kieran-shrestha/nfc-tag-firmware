@@ -15,8 +15,8 @@ void initTimers(void)
     //    Toggle LED2 (Green) on/off every 2 seconds using timer interrupt (TA1IFG)
     //*************************************************************************
     Timer_A_initContinuousModeParam initContParam = { 0 };
-        initContParam.clockSource =                 TIMER_A_CLOCKSOURCE_ACLK;       // Use ACLK (slower clock)
-        initContParam.clockSourceDivider =          TIMER_A_CLOCKSOURCE_DIVIDER_1;  // Input clock = ACLK / 1 = 10KHz
+        initContParam.clockSource =                 TIMER_A_CLOCKSOURCE_SMCLK;       // Use ACLK (slower clock)
+        initContParam.clockSourceDivider =          TIMER_A_CLOCKSOURCE_DIVIDER_12;  // Input clock = ACLK / 1 = 10KHz
         initContParam.timerInterruptEnable_TAIE =   TIMER_A_TAIE_INTERRUPT_ENABLE;  // Enable TAR -> 0 interrupt
         initContParam.timerClear =                  TIMER_A_DO_CLEAR;               // Clear TAR & clock divider
         initContParam.startTimer =                  false;                          // Don't start the timer, yet

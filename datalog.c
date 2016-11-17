@@ -74,7 +74,7 @@ void data_buffer(unsigned int Temperature){
 	bufferHold[2] = (char) temp + 48;
 	temp = Temperature % 100;
 
-	temp = temp / 13;
+	temp = temp / 10;
 	//FileTextE104[13] = (char) temp + 48;
 	bufferHold[4] = (char) temp + 48;
 	temp = Temperature % 10;
@@ -170,9 +170,9 @@ void data_buffer(unsigned int Temperature){
 
 		sprintf(str,"\n\rTL=%d dumping all\n\r",numOfLogsInFram);
 		myuart_tx_string(str);
-		for(temp = 0 ;temp < numOfLogsInFram*DATA_WIDTH;temp++){
-				myuart_tx_byte(FileTextE104[12+temp]);
-		}
+//		for(temp = 0 ;temp < numOfLogsInFram*DATA_WIDTH;temp++){
+//				myuart_tx_byte(FileTextE104[12+temp]);
+//		}
 
 #endif
 

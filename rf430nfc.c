@@ -30,7 +30,7 @@ uint8_t CCFileText[15] = { 0x00, 0x0F, /* CCLEN */
 		0x04, /* Tag, File Control TLV (4 = NDEF file) */
 		0x06, /* Length, File Control TLV (6 = 6 bytes of data for this tag) */
 		0xE1, 0x04, /* File Identifier */
-		0x23, 0x1E, /* Max NDEF size (8990 bytes of useable memory) */
+		0x2E, 0xF4, /* Max NDEF size (8990 bytes of useable memory) */
 		0x00, /* NDEF file read access condition, read access without any security */
 		0x00 /* NDEF file write access condition; write access without any security */
 }; //CC file text
