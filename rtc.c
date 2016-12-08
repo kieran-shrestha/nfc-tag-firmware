@@ -8,10 +8,10 @@
 #include "rtc.h"
 #include "datalog.h"
 #include "time.h"
-#include "myuart.h"
+//#include "myuart.h"
 #include "stdio.h"
 
-#define DEBUG
+//#define DEBUG
 
 unsigned int mincounter = 0;
 extern unsigned char tempFired;

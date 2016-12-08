@@ -13,7 +13,7 @@
 #define DATA_WIDTH 24
 
 #define MAX_LOGS 500
-#define CHECK_INTERVAL 5
+#define CHECK_INTERVAL 10
 
 #include <stdio.h>
 
