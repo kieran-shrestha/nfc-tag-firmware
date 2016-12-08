@@ -10,7 +10,7 @@
 #include "datalog.h"
 
 
-#define TEMP_RECORD_THRSHLD 2000
+#define TEMP_RECORD_THRSHLD 2500
 
 #define DEBUG 1
 
