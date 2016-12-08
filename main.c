@@ -13,6 +13,8 @@
 #define TEMP_RECORD_THRSHLD 2500
 
 #define DEBUG 1
+#pragma PERSISTENT (FB)
+unsigned char FB =0;
 
 
 //Temp_Modes_t g_ui8TemperatureModeFlag;
@@ -64,7 +66,7 @@ int main(void) {
 #ifdef DEBUG
 	myuart_tx_string("Program started...\r\n");
 #endif
-
+if(FB == 0){
 	for(i =12;i<5520+12;i++){
 		FileTextE104[i] = logs450[i-12];
 
@@ -75,7 +77,8 @@ int main(void) {
 
 	FileTextE104[6] = 0x15;
 	FileTextE104[7] = 0x93;
-
+	FB = 1;
+}
 	while (1) {
 		__bis_SR_register(LPM4_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
 		__no_operation();
