@@ -20,13 +20,13 @@
 //#define DEBUG 1
 
 #pragma PERSISTENT (numOfLogsInFram)
-unsigned int numOfLogsInFram = 0;
+extern unsigned int numOfLogsInFram = 0;
 
 #pragma PERSISTENT (ui16nlenhold)
-unsigned int ui16nlenhold = 0x000A;
+extern unsigned int ui16nlenhold = 0x000A;
 
 #pragma PERSISTENT (ui16plenhold)
-unsigned int ui16plenhold = 0x0003;
+extern unsigned int ui16plenhold = 0x0003;
 
 datalog_interval_type interval;
 

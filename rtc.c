@@ -8,7 +8,10 @@
 #include "rtc.h"
 #include "datalog.h"
 #include "time.h"
+#include "myuart.h"
+#include "stdio.h"
 
+#define DEBUG
 
 unsigned int mincounter = 0;
 extern unsigned char tempFired;
@@ -32,6 +35,9 @@ unsigned char MONTHS = 1;
 #pragma PERSISTENT (DAYS)
 unsigned char DAYS = 1;
 
+#pragma PERSISTENT (YEARS)
+unsigned int YEARS = 1;
+
 
 inline uint8_t decToBcd(uint8_t val)
 {
@@ -41,7 +47,9 @@ inline uint8_t decToBcd(uint8_t val)
 void RTC_init(){
 	time_t mytime =time(NULL);
 	struct tm tm = *localtime(&mytime);
-
+#ifdef DEBUG
+			char str[30];
+#endif
 	RTCCTL01 |= RTCHOLD | RTCTEV_0 | RTCBCD | RTCCTL0 | RTCTEVIE;//| RTCAIE;
 
 	if(FIRSTBOOT){
@@ -49,21 +57,26 @@ void RTC_init(){
 		RTCHOUR = decToBcd(tm.tm_hour);
 		RTCMIN = decToBcd(tm.tm_min);
 		RTCSEC = 0x00;
-		RTCYEAR = 0x2016;
+		YEARS = tm.tm_year-100;
+		RTCYEAR = 0x2000 | decToBcd((unsigned char)YEARS);
 		RTCMON = decToBcd(tm.tm_mon);
 		RTCDAY = decToBcd(tm.tm_mday);
-
+#ifdef DEBUG
+			sprintf(str, "%d   %d %d",YEARS,decToBcd(YEARS),decToBcd(tm.tm_hour));
+			myuart_tx_string(str);
+#endif
 		HOURS = RTCHOUR;
 		MINUTES = RTCMIN;
 		SECONDS = RTCSEC;
 		MONTHS = RTCMON;
 		DAYS = RTCDAY;
+		YEARS = RTCYEAR;
 
 	}else{
 		RTCHOUR = HOURS;
 		RTCMIN = MINUTES;
 		RTCSEC = SECONDS;
-		RTCYEAR = 0x2016;
+		RTCYEAR = YEARS;
 		RTCMON = MONTHS;
 		RTCDAY = DAYS;
 	}

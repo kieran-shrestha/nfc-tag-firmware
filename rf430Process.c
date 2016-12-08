@@ -3,10 +3,34 @@
 #include "rf430Process.h"
 #include "stdint.h"
 #include <stdio.h>
+#include <driverlib.h>
 
 //#define DEBUG 1
 
+				unsigned char rstdata[] =  { 0x00, 0x0A, /* NLEN; NDEF length (3 byte long message) */
+							0xC1, 0x01,/*lenghth of four bytes */0x00, 0x00, 0x00, 0x03, 0x54, /* T = text */
+							0x02, 0x65, 0x6E, /* 'e', 'n', */
+
+							/* 'T23.34THH:MM:20YY/MM/DD0x0d' NDEF data; */
+							0x54, 0x00, 0x00, 0x2E, 0x00, 0x00, 0x54, 0x00, 0x00, 0x3A, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x2F, 0x00, 0x00, 0x2F, 0x00, 0x00 ,0x0D
+					}; //Ndef file text
+
 extern uint16_t SelectedFile;
+extern uint8_t FileTextE104[];
+
+extern unsigned char HOURS;
+extern unsigned char MINUTES;
+extern unsigned char MONTHS;
+extern unsigned char DAYS;
+extern unsigned int YEARS;
+
+
+extern unsigned int numOfLogsInFram ;
+
+extern unsigned int ui16nlenhold ;
+
+extern unsigned int ui16plenhold;
+
 
 void rf430Interrupt(uint16_t flags) {
 
@@ -91,6 +115,7 @@ void rf430Interrupt(uint16_t flags) {
 			uint16_t buffer_start;
 			uint16_t file_offset;
 			uint16_t file_length;
+			int i;
 #ifdef DEBUG
 			char str[30];
 			myuart_tx_string("entered writing section1\n\r");
@@ -103,6 +128,32 @@ void rf430Interrupt(uint16_t flags) {
 			//can have bounds check for the requested length
 			ReadDataOnFile(SelectedFile, buffer_start, file_offset,
 					file_length);
+
+			for(i = 9 ;i<10+9;i++){
+
+				if(FileTextE104[9] == 's' && FileTextE104[10] == 't'){
+					HOURS = (FileTextE104[11]-48)<<4 |( FileTextE104[12]-48) ;
+					MINUTES = (FileTextE104[13]-48)<<4 | FileTextE104[14]-48;
+					YEARS = (FileTextE104[15]-48)<<4 | FileTextE104[16]-48;
+
+					MONTHS = (FileTextE104[17]-48)<<4 | FileTextE104[18]-48;
+					DAYS = (FileTextE104[19]-48)<<4 | FileTextE104[20]-48;
+
+					for(i =0 ;i<36;i++){
+						FileTextE104[i] = rstdata[i];
+
+					}
+
+					numOfLogsInFram = 0;
+
+					ui16nlenhold = 0x000A;
+
+					ui16plenhold = 0x0003;
+
+					WDTCTL = 0;
+				}
+			}
+
 #ifdef DEBUG
 			sprintf(str, "\n\rbuff-%d off-%d len-%d self-%d\n\r",buffer_start,file_offset,file_length,SelectedFile);
 			myuart_tx_string(str);
