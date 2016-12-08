@@ -9,7 +9,7 @@
 #include "rtc.h"
 #include "datalog.h"
 
-#define TEMP_RECORD_THRSHLD 3000
+#define TEMP_RECORD_THRSHLD 2000
 
 //#define DEBUG 1
 
@@ -49,12 +49,12 @@ int main(void) {
 	myuart_init();				// at 9600 baud
 #endif
 	RTC_init();					//initialize rtc
-
+	GPIO_setOutputHighOnPin( GPIO_PORT_P4, GPIO_PIN5);
 	datalog_Init();				//initialize datalogger setting
 //	initTimers();				// for 6.5sec temperature reads
 	TMP_Config_Init();			// configure to be in shutdown one shot mode
 	RF430_Init();				// resets the nfc ic
-
+	GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN5);
 #ifdef DEBUG
 	myuart_tx_string("Program started...\r\n");
 #endif
@@ -97,7 +97,7 @@ int main(void) {
 				Temperature = (-1.0) * Temperature;	//think shoud change to signed variable
 			}
 
-			if(Temperature < TEMP_RECORD_THRSHLD ){
+			if(Temperature > TEMP_RECORD_THRSHLD ){
 				data_buffer(Temperature);
 			}
 			else{
@@ -164,9 +164,9 @@ __interrupt void PORT2_ISR(void) {
 	}
 }
 
-//*****************************************************************************
-// Interrupt Service Routine
-//*****************************************************************************
+////*****************************************************************************
+//// Interrupt Service Routine
+////*****************************************************************************
 //#pragma vector=TIMER1_A1_VECTOR
 //__interrupt void timer1_ISR(void) {
 //
@@ -190,7 +190,7 @@ __interrupt void PORT2_ISR(void) {
 //		break;                    // (0x0A) Reserved
 //	case TA1IV_6:
 //		break;                    // (0x0C) Reserved
-//	case TA1IV_TAIFG:                       // (0x0E) TA1IFG - TAR overflow
+//	case TA1IV_TAIFG:             // (0x0E) TA1IFG - TAR overflow
 //		tempFired = 1;
 //		__bic_SR_register_on_exit(LPM4_bits + GIE); //wake up to handle INTO
 //		break;

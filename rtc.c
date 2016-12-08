@@ -53,6 +53,12 @@ void RTC_init(){
 		RTCMON = decToBcd(tm.tm_mon);
 		RTCDAY = decToBcd(tm.tm_mday);
 
+		HOURS = RTCHOUR;
+		MINUTES = RTCMIN;
+		SECONDS = RTCSEC;
+		MONTHS = RTCMON;
+		DAYS = RTCDAY;
+
 	}else{
 		RTCHOUR = HOURS;
 		RTCMIN = MINUTES;
