@@ -132,6 +132,8 @@ typedef struct NdefFile_Type
 
 extern unsigned char FileTextE104[];	//NFC NDEF File
 
+extern unsigned char logs450[];
+
 enum FileExistType
 {
 	FileFound 		= 1,

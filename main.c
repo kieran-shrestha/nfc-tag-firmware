@@ -9,9 +9,11 @@
 #include "rtc.h"
 #include "datalog.h"
 
+
 #define TEMP_RECORD_THRSHLD 2000
 
-//#define DEBUG 1
+#define DEBUG 1
+
 
 //Temp_Modes_t g_ui8TemperatureModeFlag;
 unsigned char ui8TemperatureNegFlag;
@@ -31,6 +33,10 @@ Temp_Modes_t g_ui8TemperatureModeFlag = Celcius;
 unsigned char tempFired = 0;
 unsigned char nfcFired = 0;
 
+extern uint8_t FileTextE104[];	//NFC NDEF File
+extern uint8_t logs450[];
+
+
 //***** Prototypes ************************************************************
 void initGPIO(void);
 
@@ -38,7 +44,7 @@ int main(void) {
 
 	unsigned int Temperature;		//to hold the temperature
 	unsigned int flags = 0;	// to hold the interuupt flag of nfc ic
-
+	int i = 0;
 	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 
 	/*************************initialize the hardware**************************/
@@ -58,6 +64,18 @@ int main(void) {
 #ifdef DEBUG
 	myuart_tx_string("Program started...\r\n");
 #endif
+
+	for(i =12;i<5520+12;i++){
+		FileTextE104[i] = logs450[i-12];
+
+	}
+
+	FileTextE104[0] = 0x15;
+	FileTextE104[1] = 0x9A;
+
+	FileTextE104[6] = 0x15;
+	FileTextE104[7] = 0x93;
+
 	while (1) {
 		__bis_SR_register(LPM4_bits + GIE); //go to low power mode and enable interrupts. We are waiting for an NFC read or write of/to the RF430
 		__no_operation();
