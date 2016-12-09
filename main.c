@@ -63,7 +63,7 @@ int main(void) {
 	RTC_init();					//initialize rtc
 	GPIO_setOutputHighOnPin( GPIO_PORT_P4, GPIO_PIN5);
 	datalog_Init();				//initialize datalogger setting
-	//initTimers();				// for 6.5sec temperature reads
+//	initTimers();				// for 6.5sec temperature reads
 	TMP_Config_Init();			// configure to be in shutdown one shot mode
 	RF430_Init();				// resets the nfc ic
 	GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN5);
