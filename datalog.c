@@ -20,13 +20,13 @@
 //#define DEBUG 1
 
 #pragma PERSISTENT (numOfLogsInFram)
-unsigned int numOfLogsInFram = 0;
+extern unsigned int numOfLogsInFram = 230;
 
 #pragma PERSISTENT (ui16nlenhold)
-unsigned int ui16nlenhold = 0x000A;
+extern unsigned int ui16nlenhold = 0x159A;
 
 #pragma PERSISTENT (ui16plenhold)
-unsigned int ui16plenhold = 0x0003;
+extern unsigned int ui16plenhold = 0x1593;
 
 datalog_interval_type interval;
 
@@ -125,6 +125,8 @@ void data_buffer(unsigned int Temperature){
 	myuart_tx_byte(0x0D);
 #endif
 
+
+
 	if(ui16nlenhold <  DATA_WIDTH*MAX_LOGS){	//maximum data it can hold
 
 		ui16nlenhold += DATA_WIDTH;
@@ -168,7 +170,8 @@ void data_buffer(unsigned int Temperature){
 
 #ifdef DEBUG
 
-		sprintf(str,"\n\rTL=%d dumping all\n\r",numOfLogsInFram);
+		sprintf(str,"\n\rTL=%d %d %d\n\r",numOfLogsInFram,ui16nlenhold,ui16plenhold);
+
 		myuart_tx_string(str);
 //		for(temp = 0 ;temp < numOfLogsInFram*DATA_WIDTH;temp++){
 //				myuart_tx_byte(FileTextE104[12+temp]);

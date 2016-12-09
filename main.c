@@ -12,7 +12,7 @@
 
 #define TEMP_RECORD_THRSHLD 2500
 
-#define DEBUG 1
+//#define DEBUG 1
 #pragma PERSISTENT (FB)
 unsigned char FB =0;
 
@@ -38,6 +38,10 @@ unsigned char nfcFired = 0;
 extern uint8_t FileTextE104[];	//NFC NDEF File
 extern uint8_t logs450[];
 
+extern unsigned int numOfLogsInFram ;
+extern unsigned int ui16nlenhold;
+extern unsigned int ui16plenhold ;
+
 
 //***** Prototypes ************************************************************
 void initGPIO(void);
@@ -59,7 +63,7 @@ int main(void) {
 	RTC_init();					//initialize rtc
 	GPIO_setOutputHighOnPin( GPIO_PORT_P4, GPIO_PIN5);
 	datalog_Init();				//initialize datalogger setting
-//	initTimers();				// for 6.5sec temperature reads
+	//initTimers();				// for 6.5sec temperature reads
 	TMP_Config_Init();			// configure to be in shutdown one shot mode
 	RF430_Init();				// resets the nfc ic
 	GPIO_setOutputLowOnPin( GPIO_PORT_P4, GPIO_PIN5);
@@ -71,12 +75,14 @@ if(FB == 0){
 		FileTextE104[i] = logs450[i-12];
 
 	}
-
-	FileTextE104[0] = 0x15;
-	FileTextE104[1] = 0x9A;
-
-	FileTextE104[6] = 0x15;
-	FileTextE104[7] = 0x93;
+//	numOfLogsInFram =450;
+//	FileTextE104[0] = 0x15;
+//	FileTextE104[1] = 0x9A;
+//	ui16nlenhold = 0x159A;
+//
+//	FileTextE104[6] = 0x15;
+//	FileTextE104[7] = 0x93;
+//	ui16plenhold = 0x1593;
 	FB = 1;
 }
 	while (1) {
