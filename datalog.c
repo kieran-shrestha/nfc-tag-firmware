@@ -12,8 +12,10 @@
 
 #define DATA_WIDTH 24
 
+#define NDEFSTART 60
+
 #define MAX_LOGS 500
-#define CHECK_INTERVAL 10
+#define CHECK_INTERVAL 1
 
 #include <stdio.h>
 
@@ -46,7 +48,7 @@ void datalog_Init(){
 	bufferHold[12] = ',';
 	bufferHold[17] = '/';
 	bufferHold[20] = '/';
-	bufferHold[23] = 0x0D;
+	bufferHold[23] = '\n';
 }
 
 
@@ -143,7 +145,7 @@ void data_buffer(unsigned int Temperature){
 		FileTextE104[6] = ( char) temp;
 
 		for( temp = 0 ; temp < DATA_WIDTH ; temp++){
-			FileTextE104[12 + temp + numOfLogsInFram*DATA_WIDTH] = bufferHold[temp];
+			FileTextE104[NDEFSTART + temp + numOfLogsInFram*DATA_WIDTH] = bufferHold[temp];
 		}
 
 		numOfLogsInFram+=1;
@@ -152,12 +154,12 @@ void data_buffer(unsigned int Temperature){
 #ifdef DEBUG
 		myuart_tx_string("\n\r.............Memory full..............\n\r");
 #endif
-		for(temp = 12 ;temp < MAX_LOGS*DATA_WIDTH - DATA_WIDTH ; temp++){
+		for(temp = NDEFSTART ;temp < MAX_LOGS*DATA_WIDTH - DATA_WIDTH ; temp++){
 			FileTextE104[temp] = FileTextE104[temp + DATA_WIDTH];
 		}
 
 		for( temp = 0 ; temp < DATA_WIDTH ; temp++){
-			FileTextE104[12 + temp + (numOfLogsInFram-1)*DATA_WIDTH] = bufferHold[temp];
+			FileTextE104[NDEFSTART + temp + (numOfLogsInFram-1)*DATA_WIDTH] = bufferHold[temp];
 		}
 
 	}
